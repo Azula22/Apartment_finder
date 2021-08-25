@@ -14,7 +14,6 @@ URL = 'https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mit-einba
 
 def execute_data():
     print("Looking for apartment on immowelt")
-    date_time_line = ""
     with open('immowelt_date_time.txt', "r") as in_file:
         for line in in_file:
             if line.startswith("immowelt: "):
