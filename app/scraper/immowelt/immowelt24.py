@@ -11,6 +11,7 @@ URL = 'https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mit-einba
       '&sorting=2' \
       '&enteredFrom=result_list'
 
+
 def execute_data():
     print("Looking for apartment on immowelt")
     date_time_line = ""
