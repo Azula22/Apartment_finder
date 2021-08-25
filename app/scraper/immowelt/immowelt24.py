@@ -24,7 +24,7 @@ def execute_data():
                 apartment_ids = list(map(get_id, valid_apartments))
                 for apartment_id in apartment_ids:
                     webbrowser.open(f"https://www.immobilienscout24.de/expose/{apartment_id}/")
-                new_date_time = datetime.now(timezone.utc) - timedelta(seconds=2)
+                new_date_time = datetime.now(timezone.utc) - timedelta(seconds=1)
                 date_time_line = line.replace(date_time_as_string, new_date_time.isoformat())
                 with open('immowelt_date_time.txt', "w") as in_write_file:
                     in_write_file.write(date_time_line)
