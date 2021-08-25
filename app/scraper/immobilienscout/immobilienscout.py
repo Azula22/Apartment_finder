@@ -14,10 +14,10 @@ URL = 'https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mit-einba
 
 def execute_data():
     print("Looking for apartment on immowelt")
-    with open('immowelt_date_time.txt', "r") as in_file:
+    with open('immobilienscout_date_time.txt', "r") as in_file:
         for line in in_file:
-            if line.startswith("immowelt: "):
-                date_time_as_string = line.replace("immowelt: ", "")
+            if line.startswith("immobilienscout: "):
+                date_time_as_string = line.replace("immobilienscout: ", "")
                 date_time = datetime.fromisoformat(date_time_as_string)
                 immo_page = requests.post(URL).json()["searchResponseModel"]["resultlist.resultlist"]["resultlistEntries"][0]["resultlistEntry"]
                 valid_apartments = list(filter(lambda e: all_filter_conditions(e, date_time), immo_page))
@@ -26,7 +26,7 @@ def execute_data():
                     webbrowser.open(f"https://www.immobilienscout24.de/expose/{apartment_id}/")
                 new_date_time = datetime.now(timezone.utc) - timedelta(seconds=1)
                 date_time_line = line.replace(date_time_as_string, new_date_time.isoformat())
-                with open('immowelt_date_time.txt', "w") as in_write_file:
+                with open('immobilienscout_date_time.txt', "w") as in_write_file:
                     in_write_file.write(date_time_line)
 
 
