@@ -5,21 +5,23 @@ import webbrowser
 
 URL = 'https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mit-einbaukueche-mieten?' \
       'numberofrooms=2.0-&' \
-      'price=-800.0&' \
+      'price=-850.0&' \
       'livingspace=52.0-&' \
       'pricetype=calculatedtotalrent' \
       '&sorting=2' \
       '&enteredFrom=result_list'
 
+headers = {'Cache-Control': 'no-cache'}
+
 
 def execute_data():
-    print("Looking for apartment on immowelt")
+    print("Looking for apartment on immobilienscout")
     with open('immobilienscout_date_time.txt', "r") as in_file:
         for line in in_file:
             if line.startswith("immobilienscout: "):
                 date_time_as_string = line.replace("immobilienscout: ", "")
                 date_time = datetime.fromisoformat(date_time_as_string)
-                immo_page = requests.post(URL).json()["searchResponseModel"]["resultlist.resultlist"]["resultlistEntries"][0]["resultlistEntry"]
+                immo_page = requests.post(URL, headers=headers).json()["searchResponseModel"]["resultlist.resultlist"]["resultlistEntries"][0]["resultlistEntry"]
                 valid_apartments = list(filter(lambda e: all_filter_conditions(e, date_time), immo_page))
                 apartment_ids = list(map(get_id, valid_apartments))
                 for apartment_id in apartment_ids:
@@ -37,7 +39,7 @@ def filter_out_wbs(entry):
 
 def filter_out_exchanges(entry):
     title = entry["resultlist.realEstate"]["title"].lower()
-    return "tauschwohnung" not in title
+    return "tausch" not in title
 
 
 def filter_out_private(entry):
