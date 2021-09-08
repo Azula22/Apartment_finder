@@ -2,7 +2,7 @@ from typing import Any
 
 from requests.models import Response
 
-from app.scraper.scraper import Scraper, T
+from app.scraper.websites.scraper import Scraper, T
 from datetime import datetime
 
 

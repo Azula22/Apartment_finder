@@ -1,8 +1,8 @@
 from threading import Thread
 
-from app.scraper.ebay import Ebay
-from app.scraper.immobilienscout import Immobilienscout
-from app.scraper.immowelt import Immowelt
+from app.scraper.websites.ebay import Ebay
+from app.scraper.websites.immobilienscout import Immobilienscout
+from app.scraper.websites.immowelt import Immowelt
 
 
 def main():

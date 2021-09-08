@@ -3,9 +3,8 @@ from datetime import datetime
 from lxml.html import HtmlElement
 from requests.models import Response
 from lxml import html
-import requests
 
-from app.scraper.scraper import Scraper
+from app.scraper.websites.scraper import Scraper
 
 
 class Immowelt(Scraper[HtmlElement]):

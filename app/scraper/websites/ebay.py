@@ -6,7 +6,7 @@ from lxml import html
 from lxml.html import HtmlElement
 from requests.models import Response
 
-from app.scraper.scraper import Scraper
+from app.scraper.websites.scraper import Scraper
 
 
 def has_missing_date_time(entry: HtmlElement):
