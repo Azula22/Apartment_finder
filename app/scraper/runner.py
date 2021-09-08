@@ -42,8 +42,8 @@ def main():
         "GET",
         {'User-Agent': 'PostmanRuntime/7.28.2', 'Cache-Control': 'no-cache'}
     )
-    # Thread(target=ebay.start).start()
-    # Thread(target=immoscout.start).start()
+    Thread(target=ebay.start).start()
+    Thread(target=immoscout.start).start()
     Thread(target=immowelt.start).start()
 
 
