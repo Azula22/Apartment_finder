@@ -1,15 +1,14 @@
-from datetime import datetime, date
+import webbrowser
 from abc import ABC, abstractmethod
+from datetime import datetime, date
+from time import sleep
 from typing import Optional
 from typing import TypeVar, Generic
-from time import sleep
 
+import requests
 from requests import Response
 
 from app.scraper.models.FileBody import FileBody
-
-import requests
-import webbrowser
 
 T = TypeVar('T')
 
@@ -48,7 +47,7 @@ class Scraper(ABC, Generic[T]):
         date_time = None
         checked_highlights = list()
         today = datetime.today().day
-        with open(f"../files/{self.name}.txt", "r") as in_file:
+        with open(f"./files/{self.name}.txt", "r") as in_file:
             for line in in_file:
                 if line.startswith(self.name + ": "):
                     date_time_as_string = line.replace(self.name + ": ", "").replace("\n", "")
@@ -64,7 +63,7 @@ class Scraper(ABC, Generic[T]):
 
     def write_file_body(self, file_body: FileBody) -> None:
         lines = list()
-        with open(f"../files/{self.name}.txt", "w") as in_file:
+        with open(f"./files/{self.name}.txt", "w") as in_file:
             lines.append(f"{self.name}: {file_body.date_time.__str__()}")
             lines.append(f"checked_highlights: {','.join(file_body.checked)}")
             in_file.write("\n".join(lines))
