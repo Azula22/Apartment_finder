@@ -61,7 +61,7 @@ class Ebay(Scraper[HtmlElement]):
 
     def filter_on_special(self, entry: HtmlElement, special: set[str]):
         if has_missing_date_time(entry):
-            item_id = entry.xpath('./@data-adid')
+            item_id = entry.xpath('./@data-adid')[0]
             if item_id in special:
                 return False
             else:

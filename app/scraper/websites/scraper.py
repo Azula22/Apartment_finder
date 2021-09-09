@@ -45,7 +45,7 @@ class Scraper(ABC, Generic[T]):
 
     def get_file_body(self) -> Optional[FileBody]:
         date_time = None
-        checked_highlights = list()
+        checked_highlights = set()
         today = datetime.today().day
         with open(f"./files/{self.name}.txt", "r") as in_file:
             for line in in_file:
@@ -58,7 +58,7 @@ class Scraper(ABC, Generic[T]):
                 print("Couldn't find date_time info")
             if date_time is not None and date_time.day != today:
                 date_time = date_time.replace(day=today, hour=0, minute=0, second=0, microsecond=0)
-                checked_highlights = list()
+                checked_highlights = set()
         return None if date_time is None else FileBody(date_time, checked_highlights)
 
     def write_file_body(self, file_body: FileBody) -> None:
