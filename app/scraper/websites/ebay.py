@@ -16,6 +16,9 @@ def has_missing_date_time(entry: HtmlElement):
 
 class Ebay(Scraper[HtmlElement]):
 
+    def extract_title(self, entry: HtmlElement) -> str:
+        return entry.xpath('.//a[@class=\'ellipsis\']/text()')[0].lower()
+
     def is_of_special_condition(self, entry: HtmlElement) -> bool:
         tags = entry.xpath('.//div[@class=\'aditem-main--top--right\']/i[@title=\'Top ad\' or @title=\'Highlight\']')
         return len(tags) > 0
@@ -29,22 +32,6 @@ class Ebay(Scraper[HtmlElement]):
 
     def get_link(self, entry: HtmlElement) -> Any:
         return f"https://www.ebay-kleinanzeigen.de{entry.xpath('.//@data-href')[0]}"
-
-    def filter_out_wbs(self, entry: HtmlElement):
-        title = entry.xpath('.//a[@class=\'ellipsis\']/text()')[0].lower()
-        return "wbs" not in title
-
-    def filter_out_sublease(self, entry: HtmlElement) -> bool:
-        title = entry.xpath('.//a[@class=\'ellipsis\']/text()')[0].lower()
-        return "untermiete" not in title
-
-    def filter_out_exchanges(self, entry: HtmlElement):
-        title = entry.xpath('.//a[@class=\'ellipsis\']/text()')[0].lower()
-        return "tausch" not in title
-
-    def filter_out_limited(self, entry: HtmlElement):
-        title = entry.xpath('.//a[@class=\'ellipsis\']/text()')[0].lower()
-        return "bis" not in title
 
     def filter_on_today(self, entry: HtmlElement):
         title = entry.xpath('.//div[@class=\'aditem-main--top--right\']/text()')[1].lower()

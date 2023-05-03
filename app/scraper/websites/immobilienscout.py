@@ -1,5 +1,6 @@
 from typing import Any
 
+from lxml.html import HtmlElement
 from requests.models import Response
 
 from app.scraper.websites.scraper import Scraper, T
@@ -7,6 +8,9 @@ from datetime import datetime
 
 
 class Immobilienscout(Scraper[dict]):
+
+    def extract_title(self, entry: HtmlElement) -> str:
+        return entry["resultlist.realEstate"]["title"].lower()
 
     def is_of_special_condition(self, entry: T) -> bool:
         return False
@@ -19,23 +23,7 @@ class Immobilienscout(Scraper[dict]):
 
     def get_link(self, entry: dict) -> Any:
         entry_id = entry["realEstateId"]
-        return f"https://www.immobilienscout24.de/expose/{entry_id}/"
-
-    def filter_out_wbs(self, entry: dict):
-        title = entry["resultlist.realEstate"]["title"].lower()
-        return "wbs" not in title
-
-    def filter_out_sublease(self, entry: dict) -> bool:
-        title = entry["resultlist.realEstate"]["title"].lower()
-        return "untermiete" not in title
-
-    def filter_out_exchanges(self, entry: dict):
-        title = entry["resultlist.realEstate"]["title"].lower()
-        return "tausch" not in title
-
-    def filter_out_limited(self, entry: dict):
-        is_private = entry["resultlist.realEstate"]["privateOffer"].lower() == "true"
-        return not is_private
+        return f"https://www.immobilienscout24.de/expose/{entry_id}/#/"
 
     def filter_on_today(self, entry: dict):
         return True

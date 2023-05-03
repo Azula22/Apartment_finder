@@ -6,6 +6,7 @@ from typing import Optional
 from typing import TypeVar, Generic
 
 import requests
+from lxml.html import HtmlElement
 from requests import Response
 
 from app.scraper.models.FileBody import FileBody
@@ -16,32 +17,40 @@ T = TypeVar('T')
 class Scraper(ABC, Generic[T]):
 
     def __init__(self, name: str, url: str, method: str, headers: object) -> None:
+        """
+
+        :rtype: object
+        """
         self.url = url
         self.name = name
         self.headers = headers
         self.method = method
 
     def start(self) -> None:
-        print(f"{datetime.now().__str__()} Looking for apt {self.name}")
-        file_body = self.get_file_body()
-        special_cases = file_body.checked
-        response = requests.request(self.method, self.url, headers=self.headers)
-        apartment_list = self.extract_list(response)
-        search_date_time = file_body.date_time.replace(second=0) if file_body.date_time.date() == date.today() \
-            else file_body.date_time.replace(hour=0, second=0, minute=0)
-        filtered_apartments = list(filter(
-            lambda e: self.all_filter_conditions(e, search_date_time, file_body.checked),
-            apartment_list
-        ))
-        for apartment in filtered_apartments:
-            link = self.get_link(apartment)
-            webbrowser.open(link)
-            print(f"Apartment found {link}")
-            if self.is_of_special_condition(apartment):
-                special_cases.add(self.get_id(apartment))
-        self.write_file_body(FileBody(datetime.now().replace(second=0), special_cases))
-        sleep(60)
-        self.start()
+        try:
+            print(f"{datetime.now().__str__()} Looking for apt {self.name}")
+            file_body = self.get_file_body()
+            special_cases = file_body.checked
+            response = requests.request(self.method, self.url, headers=self.headers)
+            apartment_list = self.extract_list(response)
+            search_date_time = file_body.date_time.replace(second=0) if file_body.date_time.date() == date.today() \
+                else file_body.date_time.replace(hour=0, second=0, minute=0)
+            filtered_apartments = list(filter(
+                lambda e: self.all_filter_conditions(e, search_date_time, file_body.checked),
+                apartment_list
+            ))
+            for apartment in filtered_apartments:
+                link = self.get_link(apartment)
+                webbrowser.open(link)
+                print(f"Apartment found {link}")
+                if self.is_of_special_condition(apartment):
+                    special_cases.add(self.get_id(apartment))
+            self.write_file_body(FileBody(datetime.now().replace(second=0), special_cases))
+        except Exception as exc:
+            print(exc)
+        finally:
+            sleep(60)
+            self.start()
 
     def get_file_body(self) -> Optional[FileBody]:
         date_time = None
@@ -58,7 +67,6 @@ class Scraper(ABC, Generic[T]):
                 print("Couldn't find date_time info")
             if date_time is not None and date_time.day != today:
                 date_time = date_time.replace(day=today, hour=0, minute=0, second=0, microsecond=0)
-                checked_highlights = set()
         return None if date_time is None else FileBody(date_time, checked_highlights)
 
     def write_file_body(self, file_body: FileBody) -> None:
@@ -77,20 +85,28 @@ class Scraper(ABC, Generic[T]):
                self.filter_on_time(entry, date_time) and \
                self.filter_out_sublease(entry)
 
+    def filter_out_wbs(self, entry: HtmlElement) -> bool:
+        title = self.extract_title(entry)
+        return "wbs" not in title and 'wohnberechtigungsschein' not in title
+
+    def filter_out_exchanges(self, entry: HtmlElement) -> bool:
+        title = self.extract_title(entry)
+        return "tausch" not in title
+
+    def filter_out_limited(self, entry: HtmlElement) -> bool:
+        title = self.extract_title(entry)
+        return "bis" not in title
+
+    def filter_out_sublease(self, entry: T) -> bool:
+        title = self.extract_title(entry)
+        return "untermiete" not in title
+
+    @abstractmethod
+    def extract_title(self, entry: HtmlElement) -> str:
+        pass
+
     @abstractmethod
     def extract_list(self, response: Response) -> list[T]:
-        pass
-
-    @abstractmethod
-    def filter_out_wbs(self, entry: T) -> bool:
-        pass
-
-    @abstractmethod
-    def filter_out_exchanges(self, entry: T) -> bool:
-        pass
-
-    @abstractmethod
-    def filter_out_limited(self, entry: T) -> bool:
         pass
 
     @abstractmethod
@@ -103,10 +119,6 @@ class Scraper(ABC, Generic[T]):
 
     @abstractmethod
     def filter_on_special(self, entry: T, special: set[str]) -> bool:
-        pass
-
-    @abstractmethod
-    def filter_out_sublease(self, entry: T) -> bool:
         pass
 
     @abstractmethod

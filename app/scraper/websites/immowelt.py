@@ -9,21 +9,16 @@ from app.scraper.websites.scraper import Scraper
 
 class Immowelt(Scraper[HtmlElement]):
 
+    def extract_title(self, entry: HtmlElement) -> str:
+        return entry.xpath('.//h2/text()')[0].lower()
+
     def extract_list(self, response: Response) -> list[HtmlElement]:
-        tree = html.fromstring(response.content)
-        return tree.xpath('//div[@class=\'EstateItem-1c115\']')
-
-    def filter_out_wbs(self, entry: HtmlElement) -> bool:
-        title = entry.xpath('.//h2/text()')[0].lower()
-        return "wbs" not in title
-
-    def filter_out_exchanges(self, entry: HtmlElement) -> bool:
-        title = entry.xpath('.//h2/text()')[0].lower()
-        return "tausch" not in title
-
-    def filter_out_limited(self, entry: HtmlElement) -> bool:
-        title = entry.xpath('.//h2/text()')[0].lower()
-        return "bis" not in title
+        if response.status_code == 200:
+            tree = html.fromstring(response.content)
+            return tree.xpath('//div[@class=\'EstateItem-1c115\']')
+        else:
+            print(f"Failed to get 200 response from {self.name}, got {response.status_code}")
+            return []
 
     def filter_on_today(self, entry: HtmlElement) -> bool:
         return True
@@ -34,10 +29,6 @@ class Immowelt(Scraper[HtmlElement]):
     def filter_on_special(self, entry: HtmlElement, special: set[str]) -> bool:
         item_id = self.get_id(entry)
         return item_id not in special
-
-    def filter_out_sublease(self, entry: HtmlElement) -> bool:
-        title = entry.xpath('.//h2/text()')[0].lower()
-        return "untermiete" not in title
 
     def get_link(self, entry: HtmlElement) -> str:
         return entry.xpath('.//a/@href')[0]
